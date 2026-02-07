@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração OAuth - Melibot</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #e5e7eb;
+        }
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        h1 { color: #38bdf8; margin-top: 0; }
+        h2 { color: #60a5fa; margin-top: 24px; }
+        .code {
+            background: #020617;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            margin: 12px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #38bdf8, #06b6d4);
+            color: #0b1120;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+        .btn:hover { opacity: 0.9; }
+        .warning {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 4px solid #fbbf24;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+        }
+        ol { padding-left: 20px; }
+        li { margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔐 Configuração OAuth - Mercado Livre</h1>
+        
+        <div id="configStatus"></div>
+        
+        <h2>URL de Autorização</h2>
+        <p>Se o redirect automático não funcionar, copie e cole esta URL no navegador:</p>
+        <div class="code" id="authURL">Carregando...</div>
+        <a href="#" id="authLink" class="btn" target="_blank">Abrir URL de Autorização</a>
+        
+        <h2>⚠️ Verificações Importantes</h2>
+        <div class="warning">
+            <strong>O redirect_uri deve estar EXATAMENTE igual ao configurado no painel do Mercado Livre!</strong>
+        </div>
+        
+        <ol>
+            <li>Acesse: <a href="https://developers.mercadolivre.com.br/devcenter" target="_blank" style="color: #38bdf8;">https://developers.mercadolivre.com.br/devcenter</a></li>
+            <li>Vá em "Suas aplicações"</li>
+            <li>Selecione sua aplicação</li>
+            <li>Verifique o campo "Redirect URI"</li>
+            <li>Ele deve ser EXATAMENTE igual ao ML_REDIRECT_URI no seu arquivo .env</li>
+        </ol>
+        
+        <h2>Configuração Atual</h2>
+        <div class="code">
+            <div><strong>Redirect URI configurado:</strong> <span id="redirectURI">-</span></div>
+            <div><strong>Client ID:</strong> <span id="clientID">-</span></div>
+        </div>
+        
+        <div class="warning">
+            <strong>Problema comum:</strong> Se você está usando <code>http://localhost:8080/callback</code>, 
+            o Mercado Livre pode bloquear. Considere usar uma ferramenta como 
+            <a href="https://ngrok.com" target="_blank" style="color: #38bdf8;">ngrok</a> 
+            para criar uma URL HTTPS temporária.
+        </div>
+        
+        <h2>Alternativa: ngrok</h2>
+        <p>Se o localhost não funcionar, você pode usar ngrok:</p>
+        <ol>
+            <li>Instale ngrok: <code>choco install ngrok</code> ou baixe de <a href="https://ngrok.com" target="_blank" style="color: #38bdf8;">ngrok.com</a></li>
+            <li>Execute: <code>ngrok http 8080</code></li>
+            <li>Copie a URL HTTPS gerada (ex: <code>https://abc123.ngrok.io</code>)</li>
+            <li>Atualize o ML_REDIRECT_URI no .env para: <code>https://abc123.ngrok.io/callback</code></li>
+            <li>Atualize também no painel do Mercado Livre</li>
+            <li>Reinicie o servidor e tente novamente</li>
+        </ol>
+    </div>
+    
+    <script>
+        async function loadConfig() {
+            try {
+                const res = await fetch('/auth/debug');
+                const data = await res.json();
+                
+                document.getElementById('redirectURI').textContent = data.redirect_uri || 'Não configurado';
+                document.getElementById('clientID').textContent = data.client_id || 'Não configurado';
+                
+                if (data.auth_url) {
+                    document.getElementById('authURL').textContent = data.auth_url;
+                    document.getElementById('authLink').href = data.auth_url;
+                } else {
+                    document.getElementById('authURL').textContent = 'OAuth não configurado. Verifique o arquivo .env';
+                }
+                
+                const statusDiv = document.getElementById('configStatus');
+                if (data.configured) {
+                    statusDiv.innerHTML = '<div style="background: rgba(34, 197, 94, 0.1); border-left: 4px solid #22c55e; padding: 12px; margin-bottom: 20px; border-radius: 4px;"><strong>✅ OAuth configurado corretamente</strong></div>';
+                } else {
+                    statusDiv.innerHTML = '<div class="error"><strong>❌ OAuth não configurado</strong><br>Verifique se ML_CLIENT_ID, ML_CLIENT_SECRET e ML_REDIRECT_URI estão no arquivo .env</div>';
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('configStatus').innerHTML = '<div class="error">Erro ao carregar configuração: ' + err.message + '</div>';
+            }
+        }
+        
+        loadConfig();
+    </script>
+</body>
+</html>

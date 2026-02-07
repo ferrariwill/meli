@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Melibot - Marketing Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        --bg: #0f172a;
+        --bg-elevated: #020617;
+        --card-bg: #020617;
+        --accent: #38bdf8;
+        --accent-soft: rgba(56, 189, 248, 0.1);
+        --accent-strong: #06b6d4;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --danger: #f97373;
+        --radius: 12px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #1e293b 0, #020617 55%);
+        color: var(--text);
+      }
+      .shell {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .title-block h1 {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: 0.03em;
+      }
+      .title-block p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .pill {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(15, 23, 42, 0.85);
+      }
+      .pill-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.3);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
+        gap: 20px;
+      }
+      @media (max-width: 768px) {
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      .card {
+        background: radial-gradient(circle at top left, #1f2937, #020617 55%);
+        border-radius: var(--radius);
+        padding: 16px 16px 14px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .card-title {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .card-body {
+        font-size: 14px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 4px;
+        color: var(--muted);
+      }
+      select,
+      input[type="text"] {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        background: rgba(15, 23, 42, 0.8);
+        color: var(--text);
+        font-size: 13px;
+        outline: none;
+      }
+      select:focus,
+      input[type="text"]:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+      }
+      .field-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .field-row + .field-row {
+        margin-top: 12px;
+      }
+      .hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .chip {
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        font-size: 11px;
+        cursor: pointer;
+      }
+      .chip:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        border: none;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+        color: #0b1120;
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        color: var(--muted);
+      }
+      .btn-ghost:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .products {
+        margin-top: 6px;
+        max-height: 480px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+      .product-card {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr) auto;
+        gap: 10px;
+        padding: 8px 8px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(31, 41, 55, 0.9);
+        margin-bottom: 8px;
+      }
+      .product-card img {
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 10px;
+        background: #020617;
+      }
+      .product-title {
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .product-meta {
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .badge {
+        padding: 2px 6px;
+        border-radius: 999px;
+        font-size: 11px;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+      }
+      .badge-health {
+        border-color: rgba(52, 211, 153, 0.7);
+        color: #6ee7b7;
+      }
+      .badge-hot {
+        border-color: rgba(248, 113, 113, 0.7);
+        color: var(--danger);
+      }
+      .price {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--accent-strong);
+      }
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        margin-right: 4px;
+        background: rgba(148, 163, 184, 0.9);
+      }
+      .status-dot.ok {
+        background: #22c55e;
+      }
+      .error {
+        color: var(--danger);
+        font-size: 12px;
+        margin-top: 6px;
+      }
+      .code-block {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px dashed rgba(148, 163, 184, 0.4);
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="title-block">
+          <h1>Melibot · Marketing Trends</h1>
+          <p>
+            Descubra categorias quentes, acompanhe tendências e gere posts de
+            marketing em segundos.
+          </p>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div id="authStatus" class="pill" style="display: none;">
+            <span class="pill-dot" style="background: var(--danger);"></span>
+            <span>Não autenticado</span>
+          </div>
+          <a href="/auth/login" class="btn" id="loginBtn" style="display: none;">
+            Autenticar com Mercado Livre
+          </a>
+          <div class="pill" id="connectedPill" style="display: none;">
+            <span class="pill-dot"></span>
+            <span>Conectado ao Mercado Livre (MLB)</span>
+          </div>
+          <button class="btn-ghost" id="logoutBtn" style="display: none;">
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Entrada de Dados</div>
+            <button class="btn-ghost" id="refreshCategoriesBtn">
+              Recarregar categorias
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <label for="searchText">Busca por texto (Category Predictor)</label>
+              <input
+                id="searchText"
+                type="text"
+                placeholder="Ex.: iPhone 15 Pro Max 256GB"
+              />
+              <div class="hint">
+                Digite o título do produto. Usamos o
+                <strong>category_predictor</strong> do Mercado Livre para sugerir
+                a melhor categoria.
+              </div>
+              <div id="suggestions" class="chips"></div>
+            </div>
+
+            <div class="field-row">
+              <label for="categorySelect">Categoria</label>
+              <select id="categorySelect">
+                <option value="">Selecione...</option>
+              </select>
+              <div class="hint">
+                Este select é preenchido com as categorias principais de
+                <strong>MLB</strong>.
+              </div>
+            </div>
+
+            <div class="field-row">
+              <button class="btn" id="loadTrendsBtn">
+                Carregar Top Trends da Categoria
+              </button>
+              <div id="formError" class="error" style="display: none"></div>
+            </div>
+
+            <div style="margin-top: 10px">
+              <div class="card-title" style="margin-bottom: 6px">
+                Log de Integração
+              </div>
+              <div id="log" class="code-block">
+                Aguardando interação...
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Top Trends</div>
+              <div class="hint">
+                Itens mais vendidos (sold_quantity) com saúde de anúncio
+                armazenada para análise no Postgres.
+              </div>
+            </div>
+            <div class="status-bar">
+              <span>
+                <span class="status-dot ok"></span>
+                Robô de tendência ativo
+              </span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="products" class="products"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const categorySelect = document.getElementById("categorySelect");
+      const searchText = document.getElementById("searchText");
+      const suggestionsEl = document.getElementById("suggestions");
+      const loadTrendsBtn = document.getElementById("loadTrendsBtn");
+      const refreshCategoriesBtn =
+        document.getElementById("refreshCategoriesBtn");
+      const productsEl = document.getElementById("products");
+      const logEl = document.getElementById("log");
+      const formErrorEl = document.getElementById("formError");
+
+      function log(message) {
+        const ts = new Date().toLocaleTimeString();
+        logEl.textContent = "[" + ts + "] " + message;
+      }
+
+      function setError(message) {
+        if (!message) {
+          formErrorEl.style.display = "none";
+          formErrorEl.textContent = "";
+          return;
+        }
+        formErrorEl.style.display = "block";
+        formErrorEl.textContent = message;
+      }
+
+      async function fetchJSON(url) {
+        const res = await fetch(url, {
+          credentials: 'include'
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(res.status + " - " + text);
+        }
+        return res.json();
+      }
+
+      async function loadCategories() {
+        log("Carregando categorias principais...");
+        try {
+          const cats = await fetchJSON("/api/categories");
+          categorySelect.innerHTML =
+            '<option value="">Selecione...</option>' +
+            cats
+              .map(
+                (c) =>
+                  `<option value="${c.id}">${c.name} (${c.id})</option>`
+              )
+              .join("");
+          log("Categorias carregadas com sucesso.");
+        } catch (err) {
+          console.error(err);
+          log("Erro ao carregar categorias: " + err.message);
+        }
+      }
+
+      async function loadTrends() {
+        setError("");
+        const categoryId = categorySelect.value;
+        if (!categoryId) {
+          setError("Selecione uma categoria antes de buscar tendências.");
+          return;
+        }
+
+        loadTrendsBtn.disabled = true;
+        log("Buscando Top Trends para " + categoryId + "...");
+        try {
+          const items = await fetchJSON(
+            "/api/trends?category_id=" + encodeURIComponent(categoryId)
+          );
+          renderProducts(items);
+          log(
+            "Top trends carregadas. Registros também foram salvos para análise no Postgres."
+          );
+        } catch (err) {
+          console.error(err);
+          // Check if it's an authentication error
+          if (err.message.includes("401")) {
+            setError("Autenticação necessária. Por favor, faça login primeiro.");
+            log("❌ Erro de autenticação. Clique em 'Autenticar com Mercado Livre'");
+          } else {
+            setError(err.message);
+            log("Erro ao buscar tendências: " + err.message);
+          }
+        } finally {
+          loadTrendsBtn.disabled = false;
+        }
+      }
+
+      function renderProducts(items) {
+        if (!items || items.length === 0) {
+          productsEl.innerHTML =
+            '<div class="hint">Nenhum resultado para esta categoria ainda.</div>';
+          return;
+        }
+
+        productsEl.innerHTML = items
+          .map((p) => {
+            const hotBadge =
+              p.sold_quantity && p.sold_quantity > 0
+                ? `<span class="badge badge-hot">🔥 ${p.sold_quantity} vendidos</span>`
+                : "";
+            const healthBadge = p.health
+              ? `<span class="badge badge-health">Saúde: ${p.health}</span>`
+              : "";
+            const permalink = p.permalink
+              ? `<a href="${p.permalink}" target="_blank" style="font-size:11px;color:var(--accent-strong);text-decoration:none;">Ver anúncio</a>`
+              : "";
+
+            return `
+              <article class="product-card">
+                <div>
+                  <img src="${p.thumbnail ||
+                    ""}" alt="${p.title || "Produto"}" />
+                </div>
+                <div>
+                  <div class="product-title">${p.title || ""}</div>
+                  <div class="product-meta">
+                    <span class="price">R$ ${(
+                      p.price || 0
+                    ).toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}</span>
+                    ${hotBadge}
+                    ${healthBadge}
+                  </div>
+                  <div class="product-meta" style="margin-top:4px;">
+                    ${permalink}
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;justify-content:center;">
+                  <button class="btn" onclick="generateMarketingPost('${encodeURIComponent(
+                    p.title || ""
+                  )}', '${encodeURIComponent(
+              p.permalink || ""
+            )}')">Gerar Post de Marketing</button>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      window.generateMarketingPost = function (encodedTitle, encodedLink) {
+        const title = decodeURIComponent(encodedTitle);
+        const link = decodeURIComponent(encodedLink);
+        const base =
+          "🚀 Top trend no Mercado Livre!\n\n" +
+          title +
+          "\n\n" +
+          "Produto com alta saída e excelente performance em vendas. " +
+          "Garanta o seu antes de acabar! 🔥\n\n";
+        const full = base + (link ? "Veja mais: " + link : "");
+        navigator.clipboard
+          .writeText(full)
+          .then(() => {
+            log("Post de marketing copiado para a área de transferência.");
+          })
+          .catch(() => {
+            log("Post gerado. Não foi possível copiar automaticamente.");
+          });
+      };
+
+      async function suggestCategoriesFromText(text) {
+        if (!text || text.length < 4) {
+          suggestionsEl.innerHTML = "";
+          return;
+        }
+
+        try {
+          const preds = await fetchJSON(
+            "/api/category_suggest?q=" + encodeURIComponent(text)
+          );
+          if (!preds || preds.length === 0) {
+            suggestionsEl.innerHTML =
+              '<span class="hint">Nenhuma sugestão encontrada.</span>';
+            return;
+          }
+          suggestionsEl.innerHTML = preds
+            .map(
+              (p) => `
+              <button class="chip" data-id="${p.id}">
+                ${p.name} (${p.id})
+              </button>
+            `
+            )
+            .join("");
+
+          suggestionsEl.querySelectorAll(".chip").forEach((chip) => {
+            chip.addEventListener("click", () => {
+              const id = chip.getAttribute("data-id");
+              categorySelect.value = id;
+              log("Categoria sugerida aplicada: " + id);
+            });
+          });
+        } catch (err) {
+          console.error(err);
+          suggestionsEl.innerHTML = "";
+        }
+      }
+
+      // Event wiring
+      loadTrendsBtn.addEventListener("click", loadTrends);
+      refreshCategoriesBtn.addEventListener("click", loadCategories);
+
+      let suggestTimeout;
+      searchText.addEventListener("input", (e) => {
+        clearTimeout(suggestTimeout);
+        const value = e.target.value;
+        suggestTimeout = setTimeout(() => {
+          suggestCategoriesFromText(value);
+        }, 500);
+      });
+
+      // Logout handler
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        try {
+          await fetchJSON("/auth/logout");
+          log("✅ Desconectado com sucesso!");
+          setTimeout(() => {
+            checkAuthStatus();
+          }, 500);
+        } catch (err) {
+          console.error("Logout failed:", err);
+          log("Erro ao desconectar. Tente novamente.");
+        }
+      });
+
+      // Check authentication status - simple and automatic
+      async function checkAuthStatus() {
+        try {
+          const status = await fetchJSON("/auth/status");
+          if (!status.authenticated) {
+            document.getElementById("authStatus").style.display = "inline-flex";
+            document.getElementById("loginBtn").style.display = "inline-flex";
+            document.getElementById("connectedPill").style.display = "none";
+            document.getElementById("logoutBtn").style.display = "none";
+            log("⚠️ Autenticação necessária. Clique em 'Autenticar com Mercado Livre' para continuar.");
+          } else {
+            document.getElementById("authStatus").style.display = "none";
+            document.getElementById("loginBtn").style.display = "none";
+            document.getElementById("connectedPill").style.display = "inline-flex";
+            document.getElementById("logoutBtn").style.display = "inline-block";
+            log("✅ Conectado ao Mercado Livre");
+          }
+        } catch (err) {
+          console.error("Auth check failed:", err);
+          // On error, show login button
+          document.getElementById("authStatus").style.display = "inline-flex";
+          document.getElementById("loginBtn").style.display = "inline-flex";
+          document.getElementById("connectedPill").style.display = "none";
+          document.getElementById("logoutBtn").style.display = "none";
+        }
+      }
+
+      // Check for auth success in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("auth") === "success") {
+        log("✅ Autenticação realizada com sucesso!");
+        checkAuthStatus();
+      }
+
+      // Initial load
+      checkAuthStatus().then(() => {
+        loadCategories().then(() => {
+          log("Dashboard pronto. Comece digitando um título ou escolhendo uma categoria.");
+        });
+      });
+    </script>
+  </body>
+  </html>
+
